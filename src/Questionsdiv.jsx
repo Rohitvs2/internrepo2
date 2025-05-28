@@ -1,8 +1,7 @@
-import React from "react";
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Questionscount from './Questionscount';
 
-function Questionsdiv() {
+function Questionsdiv({ onReset }) {
   const [currentQuestion, setCurrentQuestion] = useState(0)
   const [score, setScore] = useState(0)
   const [showScore, setShowScore] = useState(false)
@@ -11,6 +10,9 @@ function Questionsdiv() {
   const [reviewQuestions, setReviewQuestions] = useState([])
   const [selectedAnswers, setSelectedAnswers] = useState({})
   const [submitted, setSubmitted] = useState(false)
+  const [showSummary, setShowSummary] = useState(false)
+  const [timeLeft, setTimeLeft] = useState(1 * 60); // 1 minute in seconds
+
 const questions = [
   {
     questionText: 'What is the capital of France?',
@@ -114,6 +116,28 @@ const questions = [
   },
 ];
 
+  useEffect(() => {
+    if (!showScore && timeLeft > 0) {
+      const timer = setInterval(() => {
+        setTimeLeft(prev => {
+          if (prev <= 1) {
+            clearInterval(timer);
+            handleSubmit();
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+      
+      return () => clearInterval(timer);
+    }
+  }, [showScore, timeLeft]);
+
+  const formatTime = (seconds) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+  };
 
   const handleAnswerClick = (isCorrect, index) => {
     if (submitted) return; // Prevent changes after submission
@@ -157,32 +181,81 @@ const questions = [
   }
 
   const handleRetake = () => {
-    setCurrentQuestion(0)
-    setScore(0)
-    setShowScore(false)
-    setAnsweredQuestions([])
-    setReviewQuestions([])
-    setSubmitted(false)
-    setSelectedAnswers({})
+    onReset(); // Call parent reset function instead of local state reset
   }
 
   return (
     <div className="quiz-layout">
-      <div className='quiz-container'>
+      <div className={`quiz-container transition-all duration-300 ${showSummary ? 'w-full max-w-4xl' : ''}`}>
         {showScore ? (
-          <div className='score-section flex flex-col items-center gap-4'>
-            <div className="text-2xl font-bold">
+          <div className='score-section flex flex-col items-center gap-4 animate-fadeIn'>
+            <div className="text-3xl font-bold mb-4">
+              {score === questions.length ? '🎉 Perfect Score! 🎉' : 
+               score >= questions.length * 0.7 ? '🌟 Great Job! 🌟' :
+               score >= questions.length * 0.5 ? '👍 Good Effort! 👍' : 
+               '📚 Keep Learning! 📚'}
+            </div>
+            <div className="text-2xl font-bold text-blue-600">
               You scored {score} out of {questions.length}
             </div>
-            <button 
-              className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
-              onClick={handleRetake}
-            >
-              Retake Quiz
-            </button>
+            <div className="flex gap-4">
+              <button 
+                className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+                onClick={handleRetake}
+              >
+                Retake Quiz
+              </button>
+              <button 
+                className="px-6 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600"
+                onClick={() => setShowSummary(!showSummary)}
+              >
+                {showSummary ? 'Hide Summary' : 'Show Summary'}
+              </button>
+            </div>
+
+            {showSummary && (
+              <div className="summary-container mt-4">
+                {questions.map((question, qIndex) => (
+                  <div key={qIndex} className="border-b py-2">
+                    <div className="font-semibold">
+                      {qIndex + 1}. {question.questionText}
+                    </div>
+                    <div className="flex flex-col md:flex-row gap-2 mt-1">
+                      {question.answerOptions.map((option, index) => {
+                        const isSelected = selectedAnswers[qIndex]?.index === index;
+                        const isCorrect = option.isCorrect;
+                        const isWrong = submitted && isSelected && !isCorrect;
+                        const isRight = submitted && isCorrect;
+
+                        return (
+                          <div
+                            key={index}
+                            className={`
+                              p-2 rounded-lg flex-1
+                              ${isRight ? 'bg-green-100' : ''}
+                              ${isWrong ? 'bg-red-100' : ''}
+                            `}
+                          >
+                            {option.answerText}
+                            {isRight && <span className="text-green-500 ml-2">✓</span>}
+                            {isWrong && <span className="text-red-500 ml-2">✗</span>}
+                          </div>
+                        );
+                      })}
+                    </div>
+                    <div className="text-sm text-gray-500 mt-1">
+                      {question.explanation}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         ) : (
           <>
+            <div className="text-xl font-bold text-red-500 mb-4">
+              Time Remaining: {formatTime(timeLeft)}
+            </div>
             <div className='question-section'>
               <div className='question-count'>
                 Question {currentQuestion + 1}/{questions.length}

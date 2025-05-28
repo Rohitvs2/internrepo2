@@ -22,6 +22,7 @@ function Summary({ questions, selectedAnswers, onClose }) {
                     {question.answerOptions[selectedAnswers[qIndex]?.index]?.answerText || 'Not answered'}
                   </span>
                 </p>
+                
                 <p className="text-gray-600 italic">{question.explanation}</p>
               </div>
             </div>
