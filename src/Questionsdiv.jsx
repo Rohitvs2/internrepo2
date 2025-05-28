@@ -12,6 +12,7 @@ function Questionsdiv({ onReset }) {
   const [submitted, setSubmitted] = useState(false)
   const [showSummary, setShowSummary] = useState(false)
   const [timeLeft, setTimeLeft] = useState(1 * 60); // 1 minute in seconds
+  const [hideQuestionCount, setHideQuestionCount] = useState(false);
 
 const questions = [
   {
@@ -170,8 +171,9 @@ const questions = [
   }
 
   const handleSubmit = () => {
-    setShowScore(true)
-    setSubmitted(true)
+    setShowScore(true);
+    setSubmitted(true);
+    setHideQuestionCount(true);
   }
 
   const handleReviewClick = () => {
@@ -185,10 +187,10 @@ const questions = [
   }
 
   return (
-    <div className="quiz-layout">
-      <div className={`quiz-container transition-all duration-300 ${showSummary ? 'w-full max-w-4xl' : ''}`}>
+    <div className={`quiz-layout ${showSummary ? 'justify-center' : ''}`}>
+      <div className={`quiz-container ${showSummary ? 'w-full max-w-6xl transition-all duration-300' : ''}`}>
         {showScore ? (
-          <div className='score-section flex flex-col items-center gap-4 animate-fadeIn'>
+          <div className='score-section flex flex-col items-center gap-4'>
             <div className="text-3xl font-bold mb-4">
               {score === questions.length ? '🎉 Perfect Score! 🎉' : 
                score >= questions.length * 0.7 ? '🌟 Great Job! 🌟' :
@@ -207,7 +209,10 @@ const questions = [
               </button>
               <button 
                 className="px-6 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600"
-                onClick={() => setShowSummary(!showSummary)}
+                onClick={() => {
+                  setShowSummary(!showSummary);
+                  setHideQuestionCount(true);
+                }}
               >
                 {showSummary ? 'Hide Summary' : 'Show Summary'}
               </button>
@@ -247,7 +252,7 @@ const questions = [
                       {question.explanation}
                     </div>
                   </div>
-                ))}
+                ))} 
               </div>
             )}
           </div>
@@ -312,14 +317,16 @@ const questions = [
           </>
         )}
       </div>
-      <Questionscount 
-        totalQuestions={questions.length}
-        currentQuestion={currentQuestion}
-        answeredQuestions={answeredQuestions}
-        setCurrentQuestion={setCurrentQuestion}
-        reviewQuestions={reviewQuestions}
-        onSubmit={handleSubmit}  // Add this prop
-      />
+      {!hideQuestionCount && (
+        <Questionscount 
+          totalQuestions={questions.length}
+          currentQuestion={currentQuestion}
+          answeredQuestions={answeredQuestions}
+          setCurrentQuestion={setCurrentQuestion}
+          reviewQuestions={reviewQuestions}
+          onSubmit={handleSubmit}  // Add this prop
+        />
+      )}
     </div>
   )
 }

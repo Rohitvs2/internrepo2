@@ -1,4 +1,5 @@
 import React from 'react';
+import Chatbot from './Chatbox';
 
 function LandingPage({ onStartQuiz }) {
   return (
@@ -15,7 +16,7 @@ function LandingPage({ onStartQuiz }) {
             <Feature icon="📝" text="10 Diverse Questions" />
             <Feature icon="🔍" text="Review Options" />
             <Feature icon="📊" text="Detailed Summary" />
-          </div>
+                    </div>
         </div>
 
         <button 
