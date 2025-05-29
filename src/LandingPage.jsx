@@ -1,6 +1,35 @@
-import React from 'react';
+import React, { useState } from 'react';
+import Login from './Login';
+import { GoogleOAuthProvider } from '@react-oauth/google';
+import { Link } from 'react-router-dom';
+
+
+const Feature = ({ icon, title, text, gradient }) => {
+  return (
+    <div className="group p-6 rounded-xl bg-white/5 hover:bg-white/10 transition-all duration-300 border border-white/10 hover:border-white/20 hover:scale-105">
+      <div className="flex items-start space-x-4">
+        <div className={`text-4xl p-3 rounded-lg bg-gradient-to-r ${gradient} flex items-center justify-center shadow-lg`}>
+          <span className="filter drop-shadow-sm">{icon}</span>
+        </div>
+        <div className="flex-1">
+          <h3 className="text-xl font-bold text-white mb-2 group-hover:text-cyan-300 transition-colors">
+            {title}
+          </h3>
+          <p className="text-white/70 text-lg leading-relaxed">
+            {text}
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 function LandingPage({ onStartQuiz }) {
+  const [modalOpen, setModalOpen] = useState(false);
+  
+  const toggleModal = () => {
+    setModalOpen(!modalOpen);
+  };
   return (
     <div className="min-h-screen w-full flex items-center justify-center p-4 bg-gradient-to-br from-indigo-900 via-purple-900 to-blue-900 relative overflow-hidden">
       {/* Animated background elements */}
@@ -65,33 +94,49 @@ function LandingPage({ onStartQuiz }) {
           </button>
         </div>
 
-        {/* Additional info */}
+       
+
+        {/* LOGIN Modal Trigger */}
         <div className="text-center">
-          <p className="text-white/60 text-lg">
-            Ready to challenge yourself? Let's see what you've got! 💪
-          </p>
+          <span className="text-white text-2xl  font-bold cursor-pointer hover:scale-110" onClick={toggleModal}>
+            LOGIN
+          </span>
         </div>
+
+        {/* LOGIN Modal */}
+        {modalOpen && (
+          <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
+            <div className="bg-white w-144 p-6 rounded shadow-lg relative">
+              <button
+                onClick={toggleModal}
+                className="absolute top-2 right-3 text-gray-500 hover:text-black text-xl"
+              >
+                &times;
+              </button>
+              <h2 className="text-2xl font-bold mb-4  text-orange-600 ">Welcome Back </h2>
+              <div>
+                <h2 className="text-lg font-bold mb-4  text-orange-600 ">Login</h2>
+                <p className='text-blue-600 font-semibold'> Learn without limits - start, switch, or advance your career!</p>
+                <GoogleOAuthProvider clientId="795032530307-o0oimpaienc639tmu0gl5v35aaks1es7.apps.googleusercontent.com">
+                  <Login onClose={toggleModal} className="w-56"></Login>
+                </GoogleOAuthProvider>
+                {/* <p className='text-lg font-semibold text-black/80'>Email</p>
+                <input type="email" className='border-2 border-black/20 mt-2 rounded-lg w-[100%] h-[40px] px-2' placeholder='Enter your email' />
+                <p className='text-lg font-semibold text-black/80 mt-2'>Password</p>
+
+                <input type="password" className='border-2 border-black/20 mt-2 rounded-lg w-[100%] h-[40px] px-2' placeholder='*******' />
+
+                <input type="checkbox" name="" id="Checkbox" className='mt-2 ml-1 scale-125' />
+                <label htmlFor="Checkbox" className='ml-2'>Remember Me</label>
+                
+                <button className='hover:bg-blue-400  bg-blue-600 text-white font-semibold px-4 py-2 rounded-lg mt-4 w-[100%]'>LOGIN</button> */}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
 }
-
-const Feature = ({ icon, title, text, gradient }) => (
-  <div className="group p-6 rounded-xl bg-white/5 hover:bg-white/10 transition-all duration-300 border border-white/10 hover:border-white/20 hover:scale-105">
-    <div className="flex items-start space-x-4">
-      <div className={`text-4xl p-3 rounded-lg bg-gradient-to-r ${gradient} flex items-center justify-center shadow-lg`}>
-        <span className="filter drop-shadow-sm">{icon}</span>
-      </div>
-      <div className="flex-1">
-        <h3 className="text-xl font-bold text-white mb-2 group-hover:text-cyan-300 transition-colors">
-          {title}
-        </h3>
-        <p className="text-white/70 text-lg leading-relaxed">
-          {text}
-        </p>
-      </div>
-    </div>
-  </div>
-);
 
 export default LandingPage;
