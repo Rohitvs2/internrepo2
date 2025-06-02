@@ -3,11 +3,15 @@ import Questionsdiv from './Questionsdiv'
 import LandingPage from './LandingPage'
 import './App.css'
 import Chatbot from './Chatbox'
+import { useAuth } from './context/AuthContext';
+import Navigation from './components/Navigation';
 
 function App() {
   const [quizStarted, setQuizStarted] = useState(false)
   const [showChat, setShowChat] = useState(false)
   const [quizCompleted, setQuizCompleted] = useState(false)
+  const { user } = useAuth();
+
 const [questions, setQuestions] = useState([
   {
     questionNumber: 1,
@@ -138,48 +142,8 @@ const [questions, setQuestions] = useState([
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-      {/* Header */}
-      <header className="sticky top-0 z-40 w-full border-b border-white/10 bg-white/5 backdrop-blur-md">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-blue-500 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-xl">Q</span>
-              </div>
-              <div>
-                <h1 className="text-xl font-bold text-white">QuizMaster Pro</h1>
-                <p className="text-sm text-white/60">Challenge Your Mind</p>
-              </div>
-            </div>
-            
-            {/* Header Controls */}
-            {quizStarted && (
-              <div className="flex items-center gap-3">
-                {quizCompleted && (
-                  <button
-                    onClick={toggleChat}
-                    className="hidden md:flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium transition-colors"
-                  >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                    </svg>
-                    {showChat ? 'Hide Chat' : 'Show Chat'}
-                  </button>
-                )}
-                <button
-                  onClick={handleQuizReset}
-                  className="flex items-center gap-2 px-4 py-2 bg-slate-600 hover:bg-slate-700 text-white rounded-lg font-medium transition-colors"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                  </svg>
-                  Home
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-      </header>
+      {/* Navigation Bar */}
+      <Navigation />
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-6">
@@ -195,6 +159,7 @@ const [questions, setQuestions] = useState([
                   questions={questions} 
                   onComplete={handleQuizComplete}
                   setShowChat={setShowChat}
+                  isLoggedIn={!!user}
                 />
               </div>
             </div>
