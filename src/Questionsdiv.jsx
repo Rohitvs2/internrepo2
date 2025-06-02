@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import Questionscount from './Questionscount';
 import Chatbot from "./Chatbox";
+import Login from "./Login";
+import { GoogleOAuthProvider } from '@react-oauth/google';
 
 function Questionsdiv({ onReset, questions, setShowChat, isLoggedIn = false }) {
   const [currentQuestion, setCurrentQuestion] = useState(0)
@@ -14,6 +16,7 @@ function Questionsdiv({ onReset, questions, setShowChat, isLoggedIn = false }) {
   const [showSummary, setShowSummary] = useState(false)
   const [timeLeft, setTimeLeft] = useState(1 * 60); // 1 minute in seconds
   const [hideQuestionCount, setHideQuestionCount] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
 
   // Determine available questions based on login status
   const freeQuestionsLimit = 4;
@@ -106,11 +109,14 @@ function Questionsdiv({ onReset, questions, setShowChat, isLoggedIn = false }) {
     onReset(); // Call parent reset function instead of local state reset
   }
 
+  // Fix: Open modal on login button click
   const handleLoginRedirect = () => {
-    // You can replace this with your actual login redirect logic
-    alert("Please log in to access all questions!");
-    // window.location.href = '/login'; // Example redirect
-  }
+    setModalOpen(true);
+  };
+
+  const toggleModal = () => {
+    setModalOpen(!modalOpen);
+  };
 
   return (
     <div className={`quiz-layout ${showSummary ? 'justify-center' : ''}`}>
@@ -129,6 +135,27 @@ function Questionsdiv({ onReset, questions, setShowChat, isLoggedIn = false }) {
               >
                 Login to Unlock All
               </button>
+              {/* Login Modal */}
+              {modalOpen && (
+                <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
+                  <div className="bg-white w-144 p-6 rounded shadow-lg relative">
+                    <button
+                      onClick={toggleModal}
+                      className="absolute top-2 right-3 text-gray-500 hover:text-black text-xl"
+                    >
+                      &times;
+                    </button>
+                    <h2 className="text-2xl font-bold mb-4  text-orange-600 ">Welcome Back </h2>
+                    <div>
+                      <h2 className="text-lg font-bold mb-4  text-orange-600 ">Login</h2>
+                      <p className='text-blue-600 font-semibold'> Learn without limits - start, switch, or advance your career!</p>
+                      <GoogleOAuthProvider clientId="795032530307-o0oimpaienc639tmu0gl5v35aaks1es7.apps.googleusercontent.com">
+                        <Login onClose={toggleModal} className="w-56"></Login>
+                      </GoogleOAuthProvider>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         )}
