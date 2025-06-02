@@ -120,16 +120,7 @@ function LandingPage({ onStartQuiz }) {
                 <GoogleOAuthProvider clientId="795032530307-o0oimpaienc639tmu0gl5v35aaks1es7.apps.googleusercontent.com">
                   <Login onClose={toggleModal} className="w-56"></Login>
                 </GoogleOAuthProvider>
-                {/* <p className='text-lg font-semibold text-black/80'>Email</p>
-                <input type="email" className='border-2 border-black/20 mt-2 rounded-lg w-[100%] h-[40px] px-2' placeholder='Enter your email' />
-                <p className='text-lg font-semibold text-black/80 mt-2'>Password</p>
 
-                <input type="password" className='border-2 border-black/20 mt-2 rounded-lg w-[100%] h-[40px] px-2' placeholder='*******' />
-
-                <input type="checkbox" name="" id="Checkbox" className='mt-2 ml-1 scale-125' />
-                <label htmlFor="Checkbox" className='ml-2'>Remember Me</label>
-                
-                <button className='hover:bg-blue-400  bg-blue-600 text-white font-semibold px-4 py-2 rounded-lg mt-4 w-[100%]'>LOGIN</button> */}
               </div>
             </div>
           </div>

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import Questionscount from './Questionscount';
 import Chatbot from "./Chatbox";
 
-function Questionsdiv({ onReset, questions, setShowChat }) {
+function Questionsdiv({ onReset, questions, setShowChat, isLoggedIn = false }) {
   const [currentQuestion, setCurrentQuestion] = useState(0)
   const [score, setScore] = useState(0) 
   const [showScore, setShowScore] = useState(false)
@@ -14,6 +14,12 @@ function Questionsdiv({ onReset, questions, setShowChat }) {
   const [showSummary, setShowSummary] = useState(false)
   const [timeLeft, setTimeLeft] = useState(1 * 60); // 1 minute in seconds
   const [hideQuestionCount, setHideQuestionCount] = useState(false);
+
+  // Determine available questions based on login status
+  const freeQuestionsLimit = 4;
+  const availableQuestions = isLoggedIn ? questions : questions.slice(0, freeQuestionsLimit);
+  const totalQuestions = questions.length;
+  const lockedQuestionsCount = totalQuestions - freeQuestionsLimit;
 
   useEffect(() => {
     if (!showScore && timeLeft > 0) {
@@ -40,6 +46,13 @@ function Questionsdiv({ onReset, questions, setShowChat }) {
       setShowChat && setShowChat(false);
     }
   }, [submitted, setShowChat]);
+
+  // Reset to first question if current question exceeds available questions
+  useEffect(() => {
+    if (currentQuestion >= availableQuestions.length) {
+      setCurrentQuestion(0);
+    }
+  }, [currentQuestion, availableQuestions.length]);
 
   const formatTime = (seconds) => {
     const minutes = Math.floor(seconds / 60);
@@ -69,7 +82,7 @@ function Questionsdiv({ onReset, questions, setShowChat }) {
   }
 
   const handleNextQuestion = () => {
-    if (currentQuestion < questions.length - 1) {
+    if (currentQuestion < availableQuestions.length - 1) {
       setCurrentQuestion(currentQuestion + 1)
     } else {
       // Loop back to first question
@@ -93,20 +106,62 @@ function Questionsdiv({ onReset, questions, setShowChat }) {
     onReset(); // Call parent reset function instead of local state reset
   }
 
+  const handleLoginRedirect = () => {
+    // You can replace this with your actual login redirect logic
+    alert("Please log in to access all questions!");
+    // window.location.href = '/login'; // Example redirect
+  }
+
   return (
     <div className={`quiz-layout ${showSummary ? 'justify-center' : ''}`}>
       <div className={`quiz-container ${showSummary ? 'w-full max-w-6xl transition-all duration-300' : ''}`}>
+        {/* Login Status Banner */}
+        {!isLoggedIn && (
+          <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-4 rounded">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-bold">Free Preview Mode</p>
+                <p className="text-sm">You can access {freeQuestionsLimit} out of {totalQuestions} questions. {lockedQuestionsCount} questions are locked.</p>
+              </div>
+              <button 
+                onClick={handleLoginRedirect}
+                className="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg font-semibold"
+              >
+                Login to Unlock All
+              </button>
+            </div>
+          </div>
+        )}
+
         {showScore ? (
           <div className='score-section flex flex-col items-center gap-4'>
             <div className="text-3xl font-bold mb-4">
-              {score === questions.length ? '🎉 Perfect Score! 🎉' : 
-               score >= questions.length * 0.7 ? '🌟 Great Job! 🌟' :
-               score >= questions.length * 0.5 ? '👍 Good Effort! 👍' : 
+              {score === availableQuestions.length ? '🎉 Perfect Score! 🎉' : 
+               score >= availableQuestions.length * 0.7 ? '🌟 Great Job! 🌟' :
+               score >= availableQuestions.length * 0.5 ? '👍 Good Effort! 👍' : 
                '📚 Keep Learning! 📚'}
             </div>
             <div className="text-2xl font-bold text-blue-600">
-              You scored {score} out of {questions.length}
+              You scored {score} out of {availableQuestions.length}
+              {!isLoggedIn && (
+                <div className="text-sm text-gray-600 mt-2">
+                  (Free preview: {freeQuestionsLimit} questions completed)
+                </div>
+              )}
             </div>
+            
+            {!isLoggedIn && (
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
+                <p className="text-blue-800 font-semibold mb-2">Want to access all {totalQuestions} questions?</p>
+                <button 
+                  onClick={handleLoginRedirect}
+                  className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold"
+                >
+                  Login to Unlock Full Quiz
+                </button>
+              </div>
+            )}
+
             <div className="flex gap-4">
               <button 
                 className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
@@ -127,7 +182,7 @@ function Questionsdiv({ onReset, questions, setShowChat }) {
 
             {showSummary && (
               <div className="summary-container mt-4">
-                {questions.map((question, qIndex) => (
+                {availableQuestions.map((question, qIndex) => (
                   <div key={qIndex} className="border-b py-2">
                     <div className="font-semibold">
                       {qIndex + 1}. {question.questionText}
@@ -159,7 +214,35 @@ function Questionsdiv({ onReset, questions, setShowChat }) {
                       {question.explanation}
                     </div>
                   </div>
-                ))} 
+                ))}
+                
+                {/* Show locked questions in summary */}
+                {!isLoggedIn && questions.slice(freeQuestionsLimit).map((question, qIndex) => (
+                  <div key={qIndex + freeQuestionsLimit} className="border-b py-2 relative">
+                    <div className="absolute inset-0 bg-gray-200 bg-opacity-75 rounded-lg flex items-center justify-center z-10">
+                      <div className="text-center">
+                        <div className="text-2xl mb-2">🔒</div>
+                        <p className="font-semibold text-gray-700">Content Locked</p>
+                        <button 
+                          onClick={handleLoginRedirect}
+                          className="mt-2 bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm"
+                        >
+                          Login to Unlock
+                        </button>
+                      </div>
+                    </div>
+                    <div className="font-semibold blur-sm">
+                      {qIndex + freeQuestionsLimit + 1}. {question.questionText}
+                    </div>
+                    <div className="flex flex-col md:flex-row gap-2 mt-1 blur-sm">
+                      {question.answerOptions.map((option, index) => (
+                        <div key={index} className="p-2 rounded-lg flex-1 bg-gray-100">
+                          {option.answerText}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
               </div>
             )}
           </div>
@@ -170,14 +253,19 @@ function Questionsdiv({ onReset, questions, setShowChat }) {
             </div>
             <div className='question-section'>
               <div className='question-count'>
-                Question {currentQuestion + 1}/{questions.length}
+                Question {currentQuestion + 1}/{availableQuestions.length}
+                {!isLoggedIn && (
+                  <span className="text-sm text-gray-500 ml-2">
+                    (Free Preview)
+                  </span>
+                )}
               </div>
               <div className='question-text'>
-                {questions[currentQuestion].questionText}
+                {availableQuestions[currentQuestion].questionText}
               </div>
             </div>
             <div className='answer-section'>
-              {questions[currentQuestion].answerOptions.map((answerOption, index) => (
+              {availableQuestions[currentQuestion].answerOptions.map((answerOption, index) => (
                 <button 
                   key={index} 
                   onClick={() => handleAnswerClick(answerOption.isCorrect, index)}
@@ -197,6 +285,28 @@ function Questionsdiv({ onReset, questions, setShowChat }) {
                 </button>
               ))}
             </div>
+
+            {/* Locked Questions Preview */}
+            {!isLoggedIn && currentQuestion === availableQuestions.length - 1 && (
+              <div className="mt-4 p-4 bg-gray-100 rounded-lg border-2 border-dashed border-gray-300">
+                <div className="text-center">
+                  <div className="text-3xl mb-2">🔒</div>
+                  <h3 className="font-bold text-gray-700 mb-2">
+                    {lockedQuestionsCount} More Questions Available
+                  </h3>
+                  <p className="text-gray-600 text-sm mb-3">
+                    Unlock the remaining questions to get the complete learning experience
+                  </p>
+                  <button 
+                    onClick={handleLoginRedirect}
+                    className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold"
+                  >
+                    Login to Access All Questions
+                  </button>
+                </div>
+              </div>
+            )}
+
             <div className="flex justify-between mt-4">
               <button 
                 className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600"
@@ -226,12 +336,14 @@ function Questionsdiv({ onReset, questions, setShowChat }) {
       </div>
       {!hideQuestionCount && (
         <Questionscount 
-          totalQuestions={questions.length}
+          totalQuestions={availableQuestions.length}
           currentQuestion={currentQuestion}
           answeredQuestions={answeredQuestions}
           setCurrentQuestion={setCurrentQuestion}
           reviewQuestions={reviewQuestions}
-          onSubmit={handleSubmit}  // Add this prop
+          onSubmit={handleSubmit}
+          isLoggedIn={isLoggedIn}
+          totalQuestionsCount={totalQuestions}
         />
       )}
       {/* Only show Chatbot after submission */}
