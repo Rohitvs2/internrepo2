@@ -1,10 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
 
-const Navigation = () => {
-  const { user, logout } = useAuth();
-
+const Navigation = ({ onHome, onLogin, onLogout, user }) => {
   return (
     <nav className="sticky top-0 z-40 w-full border-b border-white/10 bg-white/5 backdrop-blur-md">
       <div className="container mx-auto px-4 py-4">
@@ -18,25 +15,31 @@ const Navigation = () => {
             </Link>
           </div>
           <div className="flex items-center gap-4">
+            <button
+              onClick={onHome}
+              className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg font-semibold hover:bg-gray-300"
+            >
+              Home
+            </button>
             {user ? (
               <>
                 <div className="px-4 py-2 bg-green-100 text-green-800 rounded-lg font-semibold">
                   Welcome, {user.name}!
                 </div>
                 <button
-                  onClick={logout}
+                  onClick={onLogout}
                   className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
                 >
                   Logout
                 </button>
               </>
             ) : (
-              <Link
-                to="/login"
+              <button
+                onClick={onLogin}
                 className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
               >
                 Login
-              </Link>
+              </button>
             )}
           </div>
         </div>
