@@ -118,6 +118,11 @@ function Questionsdiv({ onReset, questions, setShowChat, isLoggedIn = false }) {
     setModalOpen(!modalOpen);
   };
 
+  const handleCopy = (e) => {
+    e.preventDefault();
+    alert('Copying questions is not allowed!');
+  };
+
   return (
     <div className={`quiz-layout ${showSummary ? 'justify-center' : ''}`}>
       <div className={`quiz-container ${showSummary ? 'w-full max-w-6xl transition-all duration-300' : ''}`}>
@@ -211,7 +216,11 @@ function Questionsdiv({ onReset, questions, setShowChat, isLoggedIn = false }) {
               <div className="summary-container mt-4">
                 {availableQuestions.map((question, qIndex) => (
                   <div key={qIndex} className="border-b py-2">
-                    <div className="font-semibold">
+                    <div
+                      className="font-semibold"
+                      onCopy={handleCopy}
+                      style={{ userSelect: 'none', WebkitUserSelect: 'none', MozUserSelect: 'none' }}
+                    >
                       {qIndex + 1}. {question.questionText}
                     </div>
                     <div className="flex flex-col md:flex-row gap-2 mt-1">
@@ -287,7 +296,11 @@ function Questionsdiv({ onReset, questions, setShowChat, isLoggedIn = false }) {
                   </span>
                 )}
               </div>
-              <div className='question-text'>
+              <div
+                className='question-text'
+                onCopy={handleCopy}
+                style={{ userSelect: 'none', WebkitUserSelect: 'none', MozUserSelect: 'none' }}
+              >
                 {availableQuestions[currentQuestion].questionText}
               </div>
             </div>
